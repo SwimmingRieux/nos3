@@ -59,6 +59,12 @@ func HandleRun(args []string) {
 		ExitOnError(err)
 	}
 
+	defer func() {
+		if err := brokerClient.Close(); err != nil {
+			logger.Error("failed to close broker client", "err", err)
+		}
+	}()
+
 	brokerPublisher := broker.NewPublisher(brokerClient, cfg.PublisherConfig, grpcClient)
 
 	db, err := database.Connect(cfg.DBConfig, grpcClient)
