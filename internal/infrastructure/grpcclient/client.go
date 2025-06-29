@@ -50,7 +50,8 @@ func (c *Client) AddLog(ctx context.Context, msg, stack string) (*mpb.AddLogResp
 }
 
 func (c *Client) AddReport(ctx context.Context, pubKey string, blobHashes []string,
-	reportType, eventID, content, serverURL string) (*mpb.AddReportResponse, error) {
+	reportType, eventID, content, serverURL string,
+) (*mpb.AddReportResponse, error) {
 	req := &mpb.AddReportRequest{
 		PubKey:     pubKey,
 		BlobHashes: blobHashes,
@@ -65,5 +66,6 @@ func (c *Client) AddReport(ctx context.Context, pubKey string, blobHashes []stri
 	if serverURL != "" {
 		req.ServerUrl = &serverURL
 	}
+
 	return c.ReportService.AddReport(ctx, req)
 }

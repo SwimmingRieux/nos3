@@ -5,9 +5,10 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"nos3/internal/application/usecase/abstraction"
 	"strconv"
 	"time"
+
+	"nos3/internal/application/usecase/abstraction"
 
 	"github.com/labstack/echo/v4"
 	"github.com/nbd-wtf/go-nostr"
@@ -32,17 +33,20 @@ func (h *ReportHandler) HandleReport(c echo.Context) error {
 	bodyBytes, err := io.ReadAll(c.Request().Body)
 	if err != nil {
 		c.Response().Header().Set(presentation.ReasonTag, "failed to read request body")
+
 		return c.NoContent(http.StatusBadRequest)
 	}
 
 	event := &nostr.Event{}
 	if err := json.Unmarshal(bodyBytes, event); err != nil {
 		c.Response().Header().Set(presentation.ReasonTag, "invalid JSON in request body: "+err.Error())
+
 		return c.NoContent(http.StatusBadRequest)
 	}
 
 	if err := h.validateNIP56ReportEvent(event); err != nil {
 		c.Response().Header().Set(presentation.ReasonTag, err.Error())
+
 		return c.NoContent(http.StatusUnauthorized)
 	}
 
@@ -74,6 +78,7 @@ func (h *ReportHandler) HandleReport(c echo.Context) error {
 
 	if len(blobHashes) == 0 || reportType == "" {
 		c.Response().Header().Set(presentation.ReasonTag, "missing required 'x' tags or report type in Nostr event")
+
 		return c.NoContent(http.StatusBadRequest)
 	}
 
@@ -81,6 +86,7 @@ func (h *ReportHandler) HandleReport(c echo.Context) error {
 	if err != nil {
 		logger.Error("failed to process blob report", "err", err)
 		c.Response().Header().Set(presentation.ReasonTag, err.Error())
+
 		return c.NoContent(http.StatusInternalServerError)
 	}
 
@@ -122,7 +128,9 @@ func (h *ReportHandler) validateNIP56ReportEvent(event *nostr.Event) error {
 			}
 
 			switch tag[2] {
-			case presentation.NudityReport, presentation.ImpersonationReport, presentation.IllegalReport, presentation.MalwareReport, presentation.ProfanityReport, presentation.OtherReport, presentation.SpamReport:
+			case presentation.NudityReport, presentation.ImpersonationReport,
+				presentation.IllegalReport, presentation.MalwareReport, presentation.ProfanityReport,
+				presentation.OtherReport, presentation.SpamReport:
 				hasValidXTag = true
 			default:
 				return errors.New("invalid report type in 'x' tag")
@@ -142,6 +150,7 @@ func (h *ReportHandler) getTagValue(event *nostr.Event, tagName string) string {
 	if len(tag) > 1 {
 		return tag[1]
 	}
+
 	return ""
 }
 
